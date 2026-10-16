@@ -1,0 +1,36 @@
+{
+  "scenarios": 206,
+  "hourly_rows": 68808,
+  "raw_rows": 825696,
+  "split_counts": {
+    "train": 160,
+    "test": 40,
+    "preset": 6
+  },
+  "fault_hours": {
+    "none": 57995,
+    "heatwave": 1267,
+    "doser_overdose": 995,
+    "ph_probe_drift": 980,
+    "doser_empty": 908,
+    "chiller_failure": 822,
+    "nutrient_starvation": 811,
+    "overfeeding": 744,
+    "heater_failure": 725,
+    "skimmer_failure": 666,
+    "co2_spike": 614,
+    "heater_stuck_on": 604,
+    "ato_stuck_on": 576,
+    "temp_probe_offset": 460,
+    "ato_failure": 416,
+    "sensor_dropout": 155,
+    "power_outage": 70
+  },
+  "health_hours": {
+    "healthy": 65173,
+    "stressed": 2715,
+    "tissue_loss": 567,
+    "bleaching": 353
+  },
+  "days_per_scenario": 14.0
+}

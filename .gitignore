@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+.env
+.pytest_cache/
+/data/
+/runs/
+models/bootstrap-data/
+*.csv.gz
+!examples/*.csv.gz

@@ -1,0 +1,28 @@
+{
+  "farms": 30,
+  "nemotron_live": false,
+  "fault_events": 29,
+  "detection_rate": 0.793,
+  "median_latency_hours": 0.7000000000000028,
+  "diagnosis_accuracy_on_real_faults": 0.87,
+  "sensor_vs_process_accuracy": 0.913,
+  "false_incidents": 10,
+  "model_calls": {
+    "ultra": {
+      "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+      "calls": 65,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "seconds": 0.0,
+      "errors": 0
+    },
+    "super": {
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "calls": 35,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "seconds": 0.0,
+      "errors": 0
+    }
+  }
+}

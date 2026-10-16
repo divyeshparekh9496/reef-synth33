@@ -1,0 +1,24 @@
+{
+  "name": "summer-heatwave",
+  "description": "Heatwave hits while the chiller is down; classic bleaching setup.",
+  "days": 14.0,
+  "step_minutes": 5.0,
+  "seed": 2,
+  "coral": "sps",
+  "biomass": 1.0,
+  "room_temp_c": 22.5,
+  "events": [
+    {
+      "fault": "chiller_failure",
+      "start_hour": 72.0,
+      "duration_hours": 200.0,
+      "severity": 1.0
+    },
+    {
+      "fault": "heatwave",
+      "start_hour": 96.0,
+      "duration_hours": 120.0,
+      "severity": 0.8
+    }
+  ]
+}

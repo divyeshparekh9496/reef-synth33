@@ -1,0 +1,127 @@
+{
+  "train_hours": 49920,
+  "test_hours": 12480,
+  "test_farms": 40,
+  "anomaly_precision": 0.644,
+  "anomaly_recall": 0.203,
+  "fault_macro_f1": 0.56,
+  "fault_accuracy": 0.896,
+  "risk_auc": 0.906,
+  "fault_report": {
+    "ato_failure": {
+      "precision": 0.7307692307692307,
+      "recall": 0.38,
+      "f1-score": 0.5,
+      "support": 100.0
+    },
+    "ato_stuck_on": {
+      "precision": 0.9712230215827338,
+      "recall": 1.0,
+      "f1-score": 0.9854014598540146,
+      "support": 135.0
+    },
+    "chiller_failure": {
+      "precision": 0.4444444444444444,
+      "recall": 0.07643312101910828,
+      "f1-score": 0.13043478260869565,
+      "support": 157.0
+    },
+    "co2_spike": {
+      "precision": 0.7623762376237624,
+      "recall": 0.6311475409836066,
+      "f1-score": 0.6905829596412556,
+      "support": 244.0
+    },
+    "doser_empty": {
+      "precision": 0.9116022099447514,
+      "recall": 0.9649122807017544,
+      "f1-score": 0.9375,
+      "support": 171.0
+    },
+    "doser_overdose": {
+      "precision": 0.6779661016949152,
+      "recall": 0.5825242718446602,
+      "f1-score": 0.6266318537859008,
+      "support": 206.0
+    },
+    "heater_failure": {
+      "precision": 0.9723756906077348,
+      "recall": 0.5789473684210527,
+      "f1-score": 0.7257731958762886,
+      "support": 304.0
+    },
+    "heater_stuck_on": {
+      "precision": 0.8648648648648649,
+      "recall": 0.9504950495049505,
+      "f1-score": 0.9056603773584906,
+      "support": 202.0
+    },
+    "heatwave": {
+      "precision": 0.6722689075630253,
+      "recall": 0.6557377049180327,
+      "f1-score": 0.6639004149377593,
+      "support": 122.0
+    },
+    "none": {
+      "precision": 0.9077121058920856,
+      "recall": 0.9894789579158316,
+      "f1-score": 0.946833501126612,
+      "support": 9980.0
+    },
+    "nutrient_starvation": {
+      "precision": 0.7777777777777778,
+      "recall": 0.12962962962962962,
+      "f1-score": 0.2222222222222222,
+      "support": 108.0
+    },
+    "overfeeding": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 147.0
+    },
+    "ph_probe_drift": {
+      "precision": 0.6779661016949152,
+      "recall": 0.3225806451612903,
+      "f1-score": 0.4371584699453552,
+      "support": 124.0
+    },
+    "power_outage": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "sensor_dropout": {
+      "precision": 0.8333333333333334,
+      "recall": 1.0,
+      "f1-score": 0.9090909090909091,
+      "support": 50.0
+    },
+    "skimmer_failure": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 257.0
+    },
+    "temp_probe_offset": {
+      "precision": 0.9416058394160584,
+      "recall": 0.7456647398843931,
+      "f1-score": 0.832258064516129,
+      "support": 173.0
+    },
+    "accuracy": 0.8958333333333334,
+    "macro avg": {
+      "precision": 0.6556638745417431,
+      "recall": 0.5298559594108418,
+      "f1-score": 0.5596146006449195,
+      "support": 12480.0
+    },
+    "weighted avg": {
+      "precision": 0.8605332864797471,
+      "recall": 0.8958333333333334,
+      "f1-score": 0.8704346027652308,
+      "support": 12480.0
+    }
+  }
+}

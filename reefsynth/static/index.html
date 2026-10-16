@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReefSynth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #071318; --panel: #0d1e25; --panel-2: #12282f; --line: #1f3a43;
+    --text: #e3eef0; --muted: #8aa6ad; --coral: #ff7a59; --teal: #38c6b4;
+    --amber: #f2b84b; --red: #ef5b5b; --blue: #6aa8ff;
+    --mono: "IBM Plex Mono", ui-monospace, monospace; --sans: "IBM Plex Sans", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 var(--sans); }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  header h1 { font-size: 18px; margin: 0; font-weight: 600; letter-spacing: .2px; }
+  header h1 span { color: var(--coral); }
+  header .tag { color: var(--muted); font-size: 13px; }
+  .badge { font: 500 11px var(--mono); padding: 3px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+  .badge.live { color: var(--teal); border-color: var(--teal); }
+  .badge.off { color: var(--amber); border-color: var(--amber); }
+  .badge.sensor { color: var(--blue); border-color: var(--blue); }
+  .badge.process { color: var(--coral); border-color: var(--coral); }
+  .badge.nemotron { color: var(--teal); border-color: #1d5e56; }
+  .badge.fallback { color: var(--amber); border-color: #6b5420; }
+  .spacer { flex: 1; }
+  main { display: grid; grid-template-columns: 320px 1fr; gap: 20px; padding: 20px 24px; max-width: 1500px; margin: 0 auto; }
+  @media (max-width: 960px) { main { grid-template-columns: 1fr; padding: 16px; } }
+  main > *, .grid2 > *, .kpis > * { min-width: 0; }
+  .chartbox canvas { max-width: 100%; }
+  section.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
+  .preset { display: block; width: 100%; text-align: left; background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; font: inherit; }
+  .preset:hover, .preset.active { border-color: var(--coral); }
+  .preset b { display: block; font-weight: 500; font-family: var(--mono); font-size: 13px; }
+  .preset small { color: var(--muted); }
+  textarea { width: 100%; min-height: 84px; background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: inherit; resize: vertical; }
+  button.primary { background: var(--coral); color: #1a0d08; border: 0; border-radius: 8px; padding: 10px 14px; font: 600 14px var(--sans); cursor: pointer; width: 100%; margin-top: 8px; }
+  button.primary:disabled { opacity: .5; cursor: wait; }
+  a.link { color: var(--teal); text-decoration: none; font-size: 13px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .kpi .v { font: 500 22px var(--mono); }
+  .kpi .l { color: var(--muted); font-size: 12px; }
+  .charts { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .chartbox { height: 210px; position: relative; }
+  .legend { color: var(--muted); font-size: 12px; margin-top: 6px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; background: rgba(239,91,91,.25); border: 1px solid rgba(239,91,91,.6); margin: 0 4px -1px 0; }
+  .incident { border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-bottom: 12px; background: var(--panel-2); }
+  .incident .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+  .incident .rc { font: 500 15px var(--mono); }
+  .incident ul { margin: 6px 0 0 18px; padding: 0; color: var(--muted); }
+  .action { display: flex; gap: 8px; align-items: center; justify-content: space-between; border-top: 1px dashed var(--line); padding-top: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .action code { font-family: var(--mono); color: var(--text); }
+  .action .reason { color: var(--muted); font-size: 12px; flex-basis: 100%; }
+  .action button { background: transparent; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; font: 12px var(--sans); }
+  .action button.ok { border-color: var(--teal); color: var(--teal); }
+  .action button.no { border-color: var(--red); color: var(--red); }
+  .action .state { font: 12px var(--mono); }
+  .rejected { color: var(--red); }
+  pre.report { white-space: pre-wrap; font: 14px/1.6 var(--sans); margin: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 500; }
+  .ok-t { color: var(--teal); } .bad-t { color: var(--red); }
+  details summary { cursor: pointer; color: var(--muted); }
+  .note { padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .note b { font-family: var(--mono); font-weight: 500; color: var(--coral); }
+  .empty { color: var(--muted); padding: 40px 0; text-align: center; }
+  .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--line); border-top-color: var(--coral); border-radius: 50%; animation: s 1s linear infinite; vertical-align: -2px; }
+  @keyframes s { to { transform: rotate(360deg); } }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 1100px) { .grid2 { grid-template-columns: 1fr; } }
+  .muted { color: var(--muted); }
+  .spec { font: 12px/1.5 var(--mono); color: var(--muted); white-space: pre-wrap; max-height: 220px; overflow: auto; margin: 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Reef<span>Synth</span></h1>
+  <div class="tag">Synthetic coral-farm data engine and Nemotron agent crew</div>
+  <div class="spacer"></div>
+  <span id="liveBadge" class="badge">checking…</span>
+</header>
+
+<main>
+  <aside>
+    <section class="card">
+      <h2>Describe a scenario</h2>
+      <textarea id="prompt" placeholder="e.g. A 2-week August heatwave hits an LPS frag farm while the auto top-off quietly fails on day 5"></textarea>
+      <button class="primary" id="runPrompt">Generate with Nemotron and run</button>
+    </section>
+    <section class="card">
+      <h2>Or pick a preset</h2>
+      <div id="presets"></div>
+    </section>
+    <section class="card">
+      <h2>Scenario spec</h2>
+      <pre class="spec" id="spec">Run a scenario to see the spec the simulator used.</pre>
+      <div style="margin-top:8px"><a class="link" id="dl" href="/api/telemetry.csv">Download full 5-min telemetry (CSV)</a></div>
+    </section>
+    <section class="card">
+      <h2>Detectors (held-out farms)</h2>
+      <div id="mlm" class="muted">–</div>
+    </section>
+  </aside>
+
+  <div>
+    <div id="empty" class="empty">Pick a preset or describe a scenario to synthesize a farm and run the agents.</div>
+    <div id="results" style="display:none">
+      <div class="kpis" id="kpis"></div>
+      <section class="card">
+        <h2>Telemetry (measured) with ground-truth fault windows</h2>
+        <div class="charts">
+          <div class="chartbox"><canvas id="c1"></canvas></div>
+          <div class="chartbox"><canvas id="c2"></canvas></div>
+          <div class="chartbox"><canvas id="c3"></canvas></div>
+        </div>
+        <div class="legend"><i></i>shaded = injected fault (ground truth the agents never see)</div>
+      </section>
+      <div class="grid2">
+        <section class="card">
+          <h2>Incidents, diagnosis and proposed actions</h2>
+          <div id="incidents"></div>
+        </section>
+        <div>
+          <section class="card">
+            <h2>Farm report <span id="reportSrc"></span></h2>
+            <pre class="report" id="report"></pre>
+          </section>
+          <section class="card">
+            <h2>Scored against ground truth</h2>
+            <div id="eval"></div>
+          </section>
+          <section class="card">
+            <h2>Data critic <span id="criticSrc"></span></h2>
+            <div id="critic"></div>
+          </section>
+          <section class="card">
+            <h2>Nemotron calls this run</h2>
+            <div id="calls"></div>
+          </section>
+        </div>
+      </div>
+      <section class="card">
+        <details><summary>Daily shift notes (Nemotron Nano)</summary><div id="notes"></div></details>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const charts = {};
+let busy = false;
+
+function srcBadge(s) { return s ? `<span class="badge ${s === "nemotron" ? "nemotron" : "fallback"}">${s === "nemotron" ? "Nemotron" : "rule fallback"}</span>` : ""; }
+
+async function init() {
+  const st = await (await fetch("/api/status")).json();
+  $("liveBadge").textContent = st.nemotron_live ? "Nemotron on Token Factory: live" : "offline: rule fallbacks (set NEBIUS_API_KEY)";
+  $("liveBadge").className = "badge " + (st.nemotron_live ? "live" : "off");
+  $("presets").innerHTML = Object.entries(st.presets).map(([k, d]) =>
+    `<button class="preset" data-p="${k}"><b>${k}</b><small>${esc(d)}</small></button>`).join("");
+  document.querySelectorAll(".preset").forEach((b) => b.onclick = () => run({preset: b.dataset.p}, b));
+  const m = st.ml_metrics;
+  $("mlm").innerHTML = m ? `<table>
+    <tr><td>Fault classifier accuracy</td><td>${m.fault_accuracy}</td></tr>
+    <tr><td>Fault macro F1 (17 classes)</td><td>${m.fault_macro_f1}</td></tr>
+    <tr><td>24h coral-risk AUC</td><td>${m.risk_auc}</td></tr>
+    <tr><td>Test farms / hours</td><td>${m.test_farms} / ${m.test_hours}</td></tr></table>` : "models not trained yet";
+}
+
+$("runPrompt").onclick = () => { const p = $("prompt").value.trim(); if (p) run({prompt: p}); };
+
+async function run(body, btn) {
+  if (busy) return;
+  busy = true;
+  document.querySelectorAll(".preset").forEach((b) => b.classList.toggle("active", b === btn));
+  $("runPrompt").disabled = true;
+  $("empty").style.display = "block";
+  $("results").style.display = "none";
+  $("empty").innerHTML = `<span class="spin"></span> Synthesizing farm, running detectors and agents…`;
+  try {
+    const r = await fetch("/api/run", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+    if (!r.ok) throw new Error(await r.text());
+    render(await r.json());
+  } catch (e) {
+    $("empty").textContent = "Run failed: " + e.message;
+  } finally {
+    busy = false; $("runPrompt").disabled = false;
+  }
+}
+
+function bandsPlugin(events) {
+  return { id: "bands", beforeDraw(chart) {
+    const {ctx, chartArea: a, scales: {x}} = chart;
+    ctx.save();
+    for (const e of events) {
+      const x0 = x.getPixelForValue(e.start_hour), x1 = x.getPixelForValue(e.start_hour + e.duration_hours);
+      ctx.fillStyle = "rgba(239,91,91,0.13)";
+      ctx.fillRect(Math.max(a.left, x0), a.top, Math.min(a.right, x1) - Math.max(a.left, x0), a.bottom - a.top);
+    }
+    ctx.restore();
+  }};
+}
+
+function lineChart(id, series, x, events, axes) {
+  if (charts[id]) charts[id].destroy();
+  const css = getComputedStyle(document.documentElement);
+  const grid = css.getPropertyValue("--line").trim(), muted = css.getPropertyValue("--muted").trim();
+  const scales = { x: { type: "linear", ticks: { color: muted, callback: (v) => "d" + Math.floor(v / 24) }, grid: { color: grid } } };
+  for (const [k, cfg] of Object.entries(axes)) scales[k] = { position: cfg.pos, ticks: { color: muted }, grid: { color: k === "y" ? grid : "transparent" }, title: { display: true, text: cfg.title, color: muted }, min: cfg.min, max: cfg.max };
+  charts[id] = new Chart($(id), {
+    type: "line",
+    data: { datasets: series.map((s) => ({ label: s.label, data: s.data.map((v, i) => ({x: x[i], y: v})), borderColor: s.color, yAxisID: s.axis, borderWidth: 1.5, pointRadius: 0, tension: .2, borderDash: s.dash || [] })) },
+    options: { animation: false, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+      plugins: { legend: { labels: { color: muted, boxWidth: 10 } } }, scales },
+    plugins: [bandsPlugin(events)],
+  });
+}
+
+function render(r) {
+  $("empty").style.display = "none";
+  $("results").style.display = "block";
+  $("spec").textContent = JSON.stringify(r.scenario, null, 2);
+  $("dl").href = "/api/telemetry.csv";
+  const css = getComputedStyle(document.documentElement);
+  const C = (n) => css.getPropertyValue(n).trim();
+  const ev = r.evaluation, fin = r.summary.final;
+  $("kpis").innerHTML = [
+    ["Final coral status", fin.health_class.replace("_", " ")],
+    ["Coral health", Math.round(fin.coral_health * 100) + "%"],
+    ["Faults detected", ev.detection_rate === null ? "n/a" : Math.round(ev.detection_rate * 100) + "%"],
+    ["Diagnosis accuracy", ev.diagnosis_accuracy === null ? "n/a" : Math.round(ev.diagnosis_accuracy * 100) + "%"],
+    ["Run time", r.seconds + " s"],
+  ].map(([l, v]) => `<div class="kpi"><div class="v">${esc(v)}</div><div class="l">${l}</div></div>`).join("");
+
+  const s = r.series, x = s.hour_idx, events = r.scenario.events;
+  lineChart("c1", [
+    {label: "Temp °C", data: s.temp_c, color: C("--coral"), axis: "y"},
+    {label: "pH (probe)", data: s.ph, color: C("--blue"), axis: "y1"},
+  ], x, events, {y: {pos: "left", title: "°C"}, y1: {pos: "right", title: "pH"}});
+  lineChart("c2", [
+    {label: "Alkalinity dKH", data: s.alk_dkh, color: C("--amber"), axis: "y"},
+    {label: "Nitrate ppm", data: s.nitrate_ppm, color: C("--teal"), axis: "y1"},
+    {label: "Salinity ppt", data: s.salinity_ppt, color: C("--muted"), axis: "y1", dash: [4, 3]},
+  ], x, events, {y: {pos: "left", title: "dKH"}, y1: {pos: "right", title: "ppm / ppt"}});
+  lineChart("c3", [
+    {label: "Coral health (truth)", data: s.coral_health, color: C("--teal"), axis: "y"},
+    {label: "Predicted 24h risk", data: s.risk_24h, color: C("--red"), axis: "y"},
+  ], x, events, {y: {pos: "left", title: "0 to 1", min: 0, max: 1}});
+
+  $("incidents").innerHTML = r.incidents.length ? r.incidents.map((inc, i) => {
+    const d = inc.diagnosis;
+    const acts = inc.actions.map((a, j) => `<div class="action" id="a${i}-${j}">
+        <code>${esc(a.action)}(${esc(JSON.stringify(a.param))})</code>
+        ${a.status === "rejected" ? `<span class="state rejected">blocked by guard: ${esc(a.guard)}</span>` :
+          `<span><button class="ok" onclick="decide('a${i}-${j}', true)">Approve</button> <button class="no" onclick="decide('a${i}-${j}', false)">Reject</button></span>`}
+        ${a.guard !== "ok" && a.status !== "rejected" ? `<span class="reason">guard: ${esc(a.guard)}</span>` : ""}
+        <span class="reason">${esc(a.reason)}</span></div>`).join("");
+    return `<div class="incident"><div class="top">
+        <span class="rc">${d.root_cause === "none" ? "lingering coral stress" : esc(d.root_cause)}</span>
+        ${d.fault_kind && d.fault_kind !== "none" ? `<span class="badge ${esc(d.fault_kind)}">${esc(d.fault_kind)} fault</span>` : ""}
+        <span class="badge">day ${(inc.start_hour / 24).toFixed(1)}–${(inc.end_hour / 24).toFixed(1)}</span>
+        <span class="badge">coral risk ${esc(d.coral_risk)}</span>
+        ${srcBadge(d.source)}</div>
+        <div>${esc(d.explanation)}</div>
+        ${d.evidence?.length ? `<ul>${d.evidence.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>` : ""}
+        ${acts || '<div class="muted" style="margin-top:6px">No action needed.</div>'}</div>`;
+  }).join("") : '<div class="muted">No incidents detected.</div>';
+
+  $("report").textContent = r.report.text;
+  $("reportSrc").innerHTML = srcBadge(r.report.source);
+
+  $("eval").innerHTML = (ev.events.length ? `<table><tr><th>Injected fault</th><th>Detected</th><th>Latency</th></tr>${
+    ev.events.map((e) => `<tr><td>${esc(e.fault)} <span class="muted">(${e.kind})</span></td><td class="${e.detected ? "ok-t" : "bad-t"}">${e.detected ? "yes" : "missed"}</td><td>${e.latency_hours === null ? "–" : e.latency_hours + " h"}</td></tr>`).join("")}</table>` : '<div class="muted">No faults injected (baseline).</div>')
+    + (ev.diagnoses.length ? `<table style="margin-top:10px"><tr><th>Incident (h)</th><th>Truth</th><th>Diagnosed</th></tr>${
+    ev.diagnoses.map((d) => `<tr><td>${d.incident}</td><td>${esc(d.truth)}</td><td class="${d.root_cause_correct ? "ok-t" : "bad-t"}">${esc(d.diagnosed)}</td></tr>`).join("")}</table>` : "");
+
+  const cr = r.critique;
+  $("criticSrc").innerHTML = srcBadge(cr?.source === "nemotron" ? "nemotron" : "fallback");
+  $("critic").innerHTML = cr ? `Plausibility <b>${cr.plausibility}/5</b>, ${cr.keep ? "kept in dataset" : "flagged for removal"}${cr.issues?.length ? `<ul>${cr.issues.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>` : ""}` : "–";
+
+  const mc = r.model_calls;
+  $("calls").innerHTML = `<table><tr><th>Tier</th><th>Model</th><th>Calls</th></tr>${
+    ["nano", "super", "ultra"].map((t) => `<tr><td>${t}</td><td class="muted" style="font-family:var(--mono);font-size:12px">${esc(mc.models[t])}</td><td>${mc.by_tier[t] || 0}</td></tr>`).join("")}</table>
+    <div class="muted" style="margin-top:6px">${r.nemotron_live ? "" : "Offline: calls were routed to rule fallbacks."}</div>`;
+
+  $("notes").innerHTML = r.shift_notes.map((n) => `<div class="note"><b>Day ${n.day}</b> ${esc(n.note)}</div>`).join("");
+}
+
+function decide(id, ok) {
+  const el = $(id).querySelector("span:not(.reason)");
+  if (el) el.outerHTML = `<span class="state ${ok ? "ok-t" : "rejected"}">${ok ? "approved by operator" : "rejected by operator"}</span>`;
+}
+
+init();
+</script>
+</body>
+</html>
