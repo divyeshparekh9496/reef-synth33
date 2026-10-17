@@ -138,8 +138,8 @@ Some faults are genuinely silent. A failed chiller does nothing in a cool room u
 ## Quickstart
 
 ```bash
-git clone https://github.com/divyeshparekh9496/reef-synth.git
-cd reef-synth
+git clone https://github.com/divyeshparekh9496/reef-synth33.git
+cd reef-synth33
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt && pip install --no-deps -e .
 

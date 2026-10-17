@@ -40,7 +40,7 @@ The entire project was created during the submission period (started [date]).
 ## Links
 
 - Demo: [Nebius Serverless Endpoint URL]
-- Code: https://github.com/divyeshparekh9496/[repo]
+- Code: https://github.com/divyeshparekh9496/reef-synth33
 - Video: [YouTube URL]
 
 ## Demo video script (under 3 minutes)
