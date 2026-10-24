@@ -35,7 +35,7 @@ Physical AI. This submission has no physical hardware, so the video shows the ke
 
 ## What's new during the submission period
 
-The entire project was created during the submission period (started [date]).
+The entire project was created during the submission period (first commit October 16, 2026).
 
 ## Links
 
